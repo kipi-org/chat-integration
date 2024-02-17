@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  chatgptintegration:
+    image: ${DOCKER_REGISTRY-}chatgptintegration
+    build:
+      context: .
+      dockerfile: ChatGPTIntegration/Dockerfile

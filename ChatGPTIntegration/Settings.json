@@ -1,0 +1,10 @@
+﻿{
+  "DefaultConnection": "Host=host.docker.internal;Port=5432;Database=kipi;Username=postgres;Password=postgres",
+  "endpoint": "https://api.openai.com/v1/chat/completions",
+  "model": "gpt-4-turbo-preview",
+  "temperature": 0.7,
+  "role_system": "system",
+  "role_user": "user",
+  "role_assistant": "assistant",
+  "prompt": "Ты финансовый консультант, ты должен давать советы по финансовой грамотности. Советовать как правильно распоряжаться своими доходами, как оптимизировать расходы, как наиболее оптимально добиваться финансовых целей. Отвечай развернуто, но не более чем на 100 символов."
+}
