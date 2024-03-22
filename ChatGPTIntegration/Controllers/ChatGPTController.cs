@@ -17,12 +17,29 @@ namespace ChatGptService.Controllers
             _chatGPTService = chatGPTService;
         }
 
-        [HttpPost("SendMessage")]
-        public async Task<string> Post([FromBody]MessageRequestDto request)
+        [HttpPost("send-message")]
+        public async Task<string> SendMessage([FromBody]MessageRequestDto request)
         {
-            var instructions = await _chatGPTService.GetInstructionsAsync(request);
+            var result = "";
+            var allowedToSend = await _chatGPTService.AllowedToSendAsync(request.UserId);
 
-            var result = await _chatGPTService.SendMessage(instructions);
+            if (allowedToSend)
+            {
+                var instructions = await _chatGPTService.GetInstructionsAsync(request);
+                result = await _chatGPTService.SendMessage(instructions);
+            }
+            else
+            {
+                return "Количество запросов в неделю превышено, попробуйте завтра";
+            }
+
+            return result;
+        }
+
+        [HttpGet("get-messages/{id}")]
+        public async Task<List<Message>> GetMessages(int id)
+        {
+            var result = await _chatGPTService.GetMessages(id);
 
             return result;
         }

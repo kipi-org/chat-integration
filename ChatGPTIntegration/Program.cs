@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
-namespace Supply.Indymon.App
+namespace ChatGPTIntegration
 {
     public class Program
     {

@@ -10,6 +10,7 @@ public class MessagesContext : DbContext
     { }
 
     public DbSet<Message> Messages { get; set; }
+    public object Message { get; internal set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

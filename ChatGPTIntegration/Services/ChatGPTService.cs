@@ -19,6 +19,13 @@ namespace ChatGPTIntegration.Services
             _messagesContext = messagesContext;
         }
 
+        public async Task<List<Message>> GetMessages(int userId)
+        {
+            var result = await _messagesContext.Messages.Where(x => x.UserId == userId).ToListAsync();
+
+            return result;
+        }
+
         public async Task<string?> SendMessage(Instructions instructions)
         {
             string apiKey = _configuration.GetSection("key").Value.ToString();
@@ -40,7 +47,7 @@ namespace ChatGPTIntegration.Services
                         })
                         .ToList(),
                     temperature = instructions.Temperature,
-                    max_tokens = 100
+                    max_tokens = Int32.Parse(_configuration.GetSection("max_tokens").Value.ToString())
                 };
 
 
@@ -101,14 +108,6 @@ namespace ChatGPTIntegration.Services
                 })
                 .ToListAsync();
 
-            // Задаем prompt для работы модели
-            messages.Add(new Message
-            {
-                UserId = request.UserId,
-                Role = _configuration.GetSection("role_system").Value.ToString(),
-                Content = _configuration.GetSection("prompt").Value.ToString()
-            });
-
             messages.Add(new Message
             {
                 UserId = request.UserId,
@@ -118,6 +117,14 @@ namespace ChatGPTIntegration.Services
 
             // разворачиваем список сообщений в связи с ТЗ
             messages.Reverse();
+
+            // Задаем prompt для работы модели
+            messages.Add(new Message
+            {
+                UserId = request.UserId,
+                Role = _configuration.GetSection("role_system").Value.ToString(),
+                Content = _configuration.GetSection("prompt").Value.ToString()
+            });
 
             // Задаем последнее сообщение пользователя
             messages.Add(new Message
@@ -130,6 +137,40 @@ namespace ChatGPTIntegration.Services
             result.Messages = messages;
 
             return result;
+        }
+
+        public async Task<bool> AllowedToSendAsync(int userId)
+        {
+            var result = true;
+            var whiteListJson = _configuration.GetSection("whitelist").Value.ToString();
+            List<int> whitelist = GetNumbers(whiteListJson).Select(c => int.Parse(c)).ToList();
+
+            if (whitelist.Contains(userId))
+            {
+                return result;
+            }
+
+            var time = DateTime.UtcNow.AddDays(-7);
+            var limitCount = Int32.Parse(_configuration.GetSection("limit_count").Value.ToString());
+
+            var lastWeekMessages = await _messagesContext.Messages
+                                                    .Where(x => x.UserId == userId &&
+                                                                x.Date >= time)
+                                                    .ToListAsync();
+
+            if (lastWeekMessages.Count > limitCount)
+            {
+                result = false;
+            }
+
+            return result;
+        }
+
+        private List<string> GetNumbers(string input)
+        {
+            List<char> temp = input.Where(c => char.IsDigit(c)).ToList();
+            var toReturn = temp.Select(c => c.ToString()).ToList();
+            return toReturn;
         }
     }
 }
