@@ -118,12 +118,15 @@ namespace ChatGPTIntegration.Services
             // разворачиваем список сообщений в связи с ТЗ
             messages.Reverse();
 
+            var categories = request.Categories.Select(x => x.ToString());
+
+
             // Задаем prompt для работы модели
             messages.Add(new Message
             {
                 UserId = request.UserId,
                 Role = _configuration.GetSection("role_system").Value.ToString(),
-                Content = _configuration.GetSection("prompt").Value.ToString()
+                Content = $"{_configuration.GetSection("prompt").Value.ToString()}. Список транзакций: {string.Join(",", transactions)}"
             });
 
             // Задаем последнее сообщение пользователя

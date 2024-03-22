@@ -12,5 +12,7 @@ namespace ChatGPTIntegration.Models
 		public string Message { get; set; }
 
         public List<Transaction> Transactions { get; set; }
+
+		public List<Category> Categories { get; set; }
 	}
 }
